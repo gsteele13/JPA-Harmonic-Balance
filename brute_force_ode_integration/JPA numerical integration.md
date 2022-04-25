@@ -21,10 +21,6 @@ import time
 ```
 
 ```python
-test
-```
-
-```python
 plt.rcParams['figure.dpi'] = 100
 plt.rcParams['figure.figsize'] = (12,4)
 ```
