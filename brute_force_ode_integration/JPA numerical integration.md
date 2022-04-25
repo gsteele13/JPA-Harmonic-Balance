@@ -212,9 +212,9 @@ t1,x1 = solve_and_plot()
 And, now, if we include some nonlinearity, we will truncate this growth and reach a limit cycle:
 
 ```python
-T = 10000
+T = 1000
 gam = 0.1
-eps = 0.3
+eps = 0.4
 F = 0.01
 alpha = 0.001
 N = 10000
@@ -225,5 +225,5 @@ t1,x1 = solve_and_plot()
 
 ```python
 plt.plot(t1,x1)
-plt.xlim(0,1e3)
+plt.xlim(0,500)
 ```
