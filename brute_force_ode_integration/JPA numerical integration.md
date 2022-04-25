@@ -99,9 +99,9 @@ Now let's add some Duffing and see what happens:
 ```python
 T = 1000
 gam = 0.1
-eps = 0.2
+eps = 0.1
 F = 0.1
-alpha = 0.05
+alpha = 0.1
 N = 10000
 ws = 0.98
 wp = 2
@@ -142,8 +142,6 @@ plt.text(0.96, 2.9e7, "Signal")
 plt.text(1.006, 2.9e7, "Idler")
 plt.text(1.063, 2.9e7, "Second Idler (Upper)")
 ```
-
-This makes sense since a positive $\alpha$ will shift the susceptibility of the resonance to higher frequencies, which is why the idler gain is actually enhanced, while the signal gain is reduced. 
 
 We also see the appearance of a second idler sideband at higher frequencies due to higher order mixing. 
 
@@ -187,7 +185,7 @@ OK, that is now high gain.
 ```python
 T = 100000
 gam = 0.1
-eps = 0.1994
+eps = 0.1
 F = 0.01
 alpha = 0 
 N = 10000
