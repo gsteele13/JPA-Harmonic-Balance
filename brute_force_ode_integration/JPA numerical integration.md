@@ -56,7 +56,7 @@ def solve_and_plot():
         return (dxdt, dvdt)
     
     t = np.linspace(0,T,N)
-    sol = solve_ivp(dydt, [0,T], [0,0], t_eval=t, method="BDF")
+    sol = solve_ivp(dydt, [0,T], [0,0], t_eval=t)
     x = sol.y[0]
     plt.plot(t,x)
     return t,x
@@ -125,8 +125,8 @@ def plot_spec(x, lab=""):
 ```
 
 ```python
-plot_spec(x0, "Linear")
-plot_spec(x1, "Pumped")
+plot_spec(x0, "Linear, no pumping")
+plot_spec(x1, "Linear, pumped")
 plot_spec(x2, "Pumped Duffing")
 plt.axvline(0.98, ls=":", c='grey')
 plt.axvline(1.02, ls=":", c='grey')
@@ -142,3 +142,88 @@ plt.text(1.063, 2.9e7, "Second Idler (Upper)")
 This makes sense since a positive $\alpha$ will shift the susceptibility of the resonance to higher frequencies, which is why the idler gain is actually enhanced, while the signal gain is reduced. 
 
 We also see the appearance of a second idler sideband at higher frequencies due to higher order mixing. 
+
+
+## Higher gain?
+
+Let's try to get higher gain. 
+
+```python
+T = 1000
+gam = 0.1
+eps = 0.2
+F = 0.1
+alpha = 0 
+N = 10000
+ws = 0.98
+wp = 2
+t,x = solve_and_plot()
+```
+
+This is strange. This is not a lot of gain (Wouter gets 30 dB = power factor 1000, voltage factor 31) and now weird stuff is starting to happen. 
+
+Probably epsilon is too large? 
+
+Maybe we need higher Q: this will give us more gain at smaller epsilon. Go resonant and adjust force so that the resonant amplitude is 1.
+
+```python
+T = 100000
+gam = 0.01
+eps = 0.0197
+F = 0.01
+alpha = 0 
+N = 10000
+ws = 1
+wp = 2
+t1,x1 = solve_and_plot()
+```
+
+OK, that is now high gain. 
+
+```python
+T = 100000
+gam = 0.1
+eps = 0.1994
+F = 0.01
+alpha = 0 
+N = 10000
+ws = 1
+wp = 2
+t1,x1 = solve_and_plot()
+```
+
+And, of course, as we go to higher and higher gain, we need to wait longer and longer for the system to reach steady state, which make sense in terms of the pumpistor model: the effect of the negative internal resistance is increase the quality factor! 
+
+
+Note that if we go just a little bit further, we end up in self oscillation (exponential growth of the solution): 
+
+```python
+T = 100000
+gam = 0.1
+eps = 0.2
+F = 0.01
+alpha = 0 
+N = 10000
+ws = 1
+wp = 2
+t1,x1 = solve_and_plot()
+```
+
+And, now, if we include some nonlinearity, we will truncate this growth and reach a limit cycle:
+
+```python
+T = 10000
+gam = 0.1
+eps = 0.3
+F = 0.01
+alpha = 0.001
+N = 10000
+ws = 1
+wp = 2
+t1,x1 = solve_and_plot()
+```
+
+```python
+plt.plot(t1,x1)
+plt.xlim(0,1e3)
+```
