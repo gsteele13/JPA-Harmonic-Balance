@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.13.6
+      jupytext_version: 1.13.8
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -77,6 +77,7 @@ alpha = 0
 N = 10000
 ws = 0.98
 wp = 2
+phi = 0
 t0,x0 = solve_and_plot()
 ```
 
@@ -97,12 +98,12 @@ t1,x1 = solve_and_plot()
 Now let's add some Duffing and see what happens:
 
 ```python
-T = 1000
+T = 400
 gam = 0.1
 eps = 0.1
 F = 0.1
 alpha = 0.1
-N = 10000
+N = 100000
 ws = 0.98
 wp = 2
 t2,x2 = solve_and_plot()
@@ -289,3 +290,74 @@ for r in res:
 ```
 
 Note that by eps = 0.18, I am not 100% we're hitting steady state. The higher gain traces may require longer numerical integration and a smarter steady state extraction to reach steady state. 
+
+
+# Harmonic Balance
+Let's git Mousai a chance at this. 
+
+First, define the state derivative function (as you did).
+
+See this [example](https://josephcslater.github.io/mousai/tutorial/demos/Theory_and_Examples.html). Mousai's "style" matches the older function format previously used by SciPy. SciPy changed that compatibility. 
+
+```python
+import mousai as ms
+from numpy import pi, sin, cos # imported to ensure my Mousai examples work- they do
+```
+
+```python
+def dydt_mousai(y, params):
+        x = y[0]
+        v = y[1]
+        omega = params['omega'] # Not using it here, but it's used elsewhere in Mousai
+        # I'm being lazy and leaving it in as i can't recall enough how it might cause 
+        # problems to leave it out. 
+        t = params['cur_time']  # this is how Mousai "gets" time into the function
+        dxdt = v
+        dvdt = (F*np.cos(ws*t) - gam*v - x*(1+eps*np.cos(wp*t+phi)) - alpha*x**3)
+        return np.array([[dxdt], [dvdt]])
+```
+
+Define some parameters. 
+
+phi was missing in the equations above and this wouldn't run, so I'm setting it to zero. 
+
+I'm also not editing parameters that shouldn't matter.
+
+```python
+T = 1000
+phi = 0
+gam = 0.1
+eps = 0.0
+F = 0.1
+alpha = 0 
+N = 10000
+ws = 0.98
+wp = 2
+t = np.linspace(0,T,N)
+```
+
+Given $\omega_s$ and $\omega_p$ are multiples of 0.02, we will use that as the fundamental harmonic. 
+
+Mousai will use a Fourier series with a fundamental frequency of 0.02 rad/sec. It will require 100 harmonics to include both $\omega_s$ and $\omega_p$. Understanding the problem a bit better now, I'm very concerned that we will be solving for so many harmonics that this may not have the efficiency I had hoped. In theory, it wouldn't work, but numerical realities will be a big concern. 
+
+```python
+t, x, e, amps, phases = ms.hb_time(dydt_mousai, num_variables=2, omega=0.02,
+                                 eqform='first_order', num_harmonics=200)
+
+# print(x,e)
+print('Constant term of FFT of signal should be zero: ', ms.fftp.fft(x)[0,0])
+time, xc = ms.time_history(t,x, num_time_points=2000)
+
+####
+# The time_history function can crash when using a high number of harmonics. 
+# num_time_points should be manually inreased
+####
+
+plt.plot(time, xc.T, t, x.T, '*')
+plt.xlabel('Time')
+plt.grid(True)
+```
+
+```python
+
+```
